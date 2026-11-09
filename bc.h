@@ -53,12 +53,14 @@ static int bc_fini(bc* db) {
 	return rc;
 }
 
-static size_t bc_len (const bc* db) {
-	return db->len;
+static int bc_len (const bc* db, size_t* len) {
+	*len = db->len;
+	return 0;
 }
 
-static size_t bc_size(const bc* db) {
-	return db->len * db->size;
+static int bc_size(const bc* db, size_t* size) {
+	*size = db->len * db->size;
+	return 0;
 }
 
 static int bc_get (const bc* db, size_t idx, void* data) {
