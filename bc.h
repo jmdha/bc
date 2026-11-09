@@ -1,5 +1,5 @@
-#ifndef JBC_H
-#define JBC_H
+#ifndef BC_H
+#define BC_H
 
 #define _GNU_SOURCE
 #include <stddef.h>
@@ -17,9 +17,9 @@ typedef struct {
 	size_t      len;
 	size_t      max;
 	const void* map;
-} jbc;
+} bc;
 
-static int jbc_init(jbc* db, const char* path, size_t size, size_t max) {
+static int bc_init(bc* db, const char* path, size_t size, size_t max) {
 	if (size == 0 || size > 512) return -1;
 
 	struct stat st;
@@ -46,36 +46,36 @@ fail:
 	return -1;
 }
 
-static int jbc_fini(jbc* db) {
+static int bc_fini(bc* db) {
 	int rc = fdatasync(db->fd);
 	munmap((void*)db->map, db->max);
 	close(db->fd);
 	return rc;
 }
 
-static size_t jbc_len (const jbc* db) {
+static size_t bc_len (const bc* db) {
 	return db->len;
 }
 
-static size_t jbc_size(const jbc* db) {
+static size_t bc_size(const bc* db) {
 	return db->len * db->size;
 }
 
-static int jbc_get (const jbc* db, size_t idx, void* data) {
+static int bc_get (const bc* db, size_t idx, void* data) {
 	if (idx >= db->len) return -1;
 
 	memcpy(data, (const char*)db->map + idx * db->size, db->size);
 	return 0;
 }
 
-static int jbc_ref (const jbc* db, size_t idx, const void** ref) {
+static int bc_ref (const bc* db, size_t idx, const void** ref) {
 	if (idx >= db->len) return -1;
 
 	*ref = (const char*)db->map + idx * db->size;
 	return 0;
 }
 
-static int jbc_add (jbc* db, size_t* idx, const void* data) {
+static int bc_add (bc* db, size_t* idx, const void* data) {
 	if ((db->len + 1) * db->size > db->max) return -1;
 	if (write(db->fd, data, db->size) != (ssize_t)db->size) {
 		ftruncate(db->fd, db->len * db->size);
